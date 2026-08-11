@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node --version)",
+      "PowerShell(python --version)",
+      "PowerShell(Start-Sleep -Seconds 3; try { \\(Invoke-WebRequest -Uri http://localhost:8123/index.html -UseBasicParsing -TimeoutSec 5\\).StatusCode } catch { $_.Exception.Message })",
+      "Bash(echo '- [Keine externen Fetches]\\(no-external-fetches.md\\) — CDN-frei arbeiten, Assets lokal einbinden' >> \"/c/Users/z000pb8d/.claude/projects/C--Users-z000pb8d-Desktop-JavaScript-Projekte-1x1-Quiz/memory/MEMORY.md\")"
+    ]
+  }
+}

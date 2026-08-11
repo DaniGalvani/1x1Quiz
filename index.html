@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#6d5df6">
+  <title>1x1-Held – Das Einmaleins-Quiz</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="app">
+
+    <!-- ===== Startbildschirm ===== -->
+    <section id="screen-start" class="screen active">
+      <header class="hero">
+        <div class="logo" aria-hidden="true">🧮</div>
+        <h1>1x1-Held</h1>
+        <p class="tagline">Werde zum Einmaleins-Meister!</p>
+      </header>
+
+      <div class="card">
+        <h2>Wie heißt du?</h2>
+        <div class="player-chips" id="playerChips"></div>
+        <input id="playerName" class="name-input" type="text" maxlength="16" placeholder="Dein Name" autocomplete="off">
+        <p class="daily-info hidden" id="dailyInfo"></p>
+      </div>
+
+      <div class="card" id="rowsCard">
+        <h2>Welche Reihen übst du heute?</h2>
+        <div class="row-chips" id="rowChips"></div>
+        <button id="btnAllRows" class="chip chip-all" type="button">✨ Alle gemischt</button>
+      </div>
+
+      <div class="card">
+        <h2>Wie möchtest du spielen?</h2>
+        <div class="mode-grid" id="modeGrid"></div>
+      </div>
+
+      <div class="card hidden" id="duelCard">
+        <h2>⚔️ Gegen wen spielst du?</h2>
+        <div class="player-chips" id="duelChips"></div>
+        <input id="duelName" class="name-input" type="text" maxlength="16" placeholder="Name des Gegners" autocomplete="off">
+      </div>
+
+      <div class="card hidden" id="adventureCard">
+        <h2>🗺️ Deine Level-Karte</h2>
+        <div class="level-grid" id="levelGrid"></div>
+        <p class="adventure-hint">Hol dir mindestens 2 Sterne ⭐⭐, um das nächste Level freizuschalten!</p>
+      </div>
+
+      <button id="btnStart" class="btn-primary" type="button">Los geht's! 🚀</button>
+      <p id="startHint" class="start-hint hidden">Wähle zuerst mindestens eine Reihe aus 😊</p>
+
+      <div class="card card-leaderboard">
+        <h2>🏆 Rangliste</h2>
+        <div class="lb-tabs" id="lbTabs"></div>
+        <ol id="lbList" class="lb-list"></ol>
+        <p id="lbEmpty" class="lb-empty">Noch keine Einträge – spiele die erste Runde!</p>
+      </div>
+
+      <div class="card" id="badgeCard">
+        <h2>🏅 Abzeichen</h2>
+        <div class="badge-grid" id="badgeGrid"></div>
+      </div>
+
+      <div class="card hidden" id="statsCard">
+        <h2>📊 Statistik</h2>
+        <div class="stats-grid" id="statsGrid"></div>
+        <p class="stats-summary" id="statsSummary"></p>
+      </div>
+
+      <div class="footer-actions">
+        <button id="btnStats" class="btn-mini" type="button">📊 Statistik</button>
+        <button id="btnExport" class="btn-mini" type="button">💾 Sichern</button>
+        <button id="btnImport" class="btn-mini" type="button">📥 Laden</button>
+        <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+      </div>
+    </section>
+
+    <!-- ===== Quiz-Bildschirm ===== -->
+    <section id="screen-quiz" class="screen">
+      <div class="quiz-header">
+        <button id="btnQuit" class="btn-icon" type="button" title="Zurück zum Menü">🏠</button>
+        <div class="stat stat-score">⭐ <span id="score">0</span></div>
+        <div class="stat stat-streak" id="streakBox">🔥 <span id="streak">0</span></div>
+        <button id="btnMute" class="btn-icon" type="button" title="Ton an/aus">🔊</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+        <span id="progressLabel" class="progress-label">Aufgabe 1 von 20</span>
+      </div>
+
+      <div class="card task-card" id="taskCard">
+        <div class="task" id="taskText">7 × 4</div>
+        <div class="answer-display" id="answerDisplay"><span class="placeholder">?</span></div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button class="key" data-key="1" type="button">1</button>
+        <button class="key" data-key="2" type="button">2</button>
+        <button class="key" data-key="3" type="button">3</button>
+        <button class="key" data-key="4" type="button">4</button>
+        <button class="key" data-key="5" type="button">5</button>
+        <button class="key" data-key="6" type="button">6</button>
+        <button class="key" data-key="7" type="button">7</button>
+        <button class="key" data-key="8" type="button">8</button>
+        <button class="key" data-key="9" type="button">9</button>
+        <button class="key key-del" data-key="del" type="button">⌫</button>
+        <button class="key" data-key="0" type="button">0</button>
+        <button class="key key-ok" data-key="ok" type="button">OK</button>
+      </div>
+
+      <div class="truth-buttons hidden" id="truthButtons">
+        <button class="truth-btn truth-yes" data-truth="1" type="button">✅ Stimmt</button>
+        <button class="truth-btn truth-no" data-truth="0" type="button">❌ Stimmt nicht</button>
+      </div>
+    </section>
+
+    <!-- ===== Duell: Gerät weitergeben ===== -->
+    <section id="screen-handover" class="screen">
+      <div class="card result-card">
+        <div class="handover-icon" aria-hidden="true">🔄</div>
+        <h2 id="handoverTitle">Jetzt ist … dran!</h2>
+        <p class="handover-text">Gib das Gerät weiter.</p>
+        <button id="btnHandover" class="btn-primary" type="button">Bereit! 💪</button>
+      </div>
+    </section>
+
+    <!-- ===== Ergebnis-Bildschirm ===== -->
+    <section id="screen-result" class="screen">
+      <div class="card result-card">
+        <div class="stars" id="stars" aria-hidden="true">
+          <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
+        </div>
+        <h2 id="resultTitle">Super gemacht!</h2>
+        <div class="final-score" id="finalScoreWrap"><span id="finalScore">0</span><small>Punkte</small></div>
+        <div id="newHighscore" class="new-highscore hidden">🎉 Neuer persönlicher Rekord! 🎉</div>
+        <div id="resultRank" class="result-rank hidden"></div>
+        <div id="dailyGoal" class="daily-goal hidden"></div>
+        <div id="newBadges" class="new-badges hidden"></div>
+        <div id="duelResult" class="duel-result hidden"></div>
+        <div class="result-stats" id="resultStats">
+          <div class="rstat"><span class="rstat-value" id="statCorrect">0</span><span class="rstat-label">✅ Richtig</span></div>
+          <div class="rstat"><span class="rstat-value" id="statWrong">0</span><span class="rstat-label">❌ Falsch</span></div>
+          <div class="rstat"><span class="rstat-value" id="statStreak">0</span><span class="rstat-label">🔥 Beste Serie</span></div>
+        </div>
+        <button id="btnAgain" class="btn-primary" type="button">Nochmal! 🔁</button>
+        <button id="btnMenu" class="btn-secondary" type="button">Zum Menü</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
