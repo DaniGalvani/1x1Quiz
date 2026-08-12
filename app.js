@@ -213,7 +213,7 @@
   function makePlayerChip(name, selected, onPick) {
     const chip = document.createElement('button');
     chip.type = 'button';
-    chip.className = 'pchip' + (selected ? ' selected' : '');
+    chip.className = 'btn pchip rounded-pill' + (selected ? ' selected' : '');
     chip.textContent = name;
     chip.addEventListener('click', () => { playSound('tap'); onPick(name); });
     return chip;
@@ -488,7 +488,7 @@
     Object.entries(MODES).filter(([, m]) => m.board).forEach(([key, m]) => {
       const tab = document.createElement('button');
       tab.type = 'button';
-      tab.className = 'lb-tab' + (key === lbMode ? ' selected' : '');
+      tab.className = 'nav-link' + (key === lbMode ? ' active' : '');
       tab.textContent = `${m.icon} ${m.short}`;
       tab.addEventListener('click', () => {
         playSound('tap');
@@ -508,7 +508,8 @@
     const medals = ['🥇', '🥈', '🥉'];
     entries.forEach((e, i) => {
       const li = document.createElement('li');
-      li.className = 'lb-row' + (playerName && e.name.toLowerCase() === playerName.toLowerCase() ? ' me' : '');
+      li.className = 'list-group-item d-flex align-items-center gap-2 rounded-3 lb-row'
+        + (playerName && e.name.toLowerCase() === playerName.toLowerCase() ? ' me' : '');
       const rank = document.createElement('span');
       rank.className = 'lb-rank';
       rank.textContent = medals[i] || `${i + 1}.`;
@@ -529,7 +530,7 @@
     ROWS.forEach((row) => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'chip';
+      btn.className = 'btn chip';
       btn.textContent = row;
       btn.dataset.row = row;
       btn.addEventListener('click', () => {
@@ -578,7 +579,7 @@
     Object.entries(MODES).forEach(([key, m]) => {
       const tile = document.createElement('button');
       tile.type = 'button';
-      tile.className = 'mode-tile' + (key === state.mode ? ' selected' : '');
+      tile.className = 'btn mode-tile' + (key === state.mode ? ' selected' : '');
       tile.dataset.mode = key;
 
       const icon = document.createElement('span');
@@ -631,7 +632,7 @@
       const unlocked = !!playerName && (i === 0 || (adv.stars[ROWS[i - 1]] || 0) >= 2);
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'level-btn' + (unlocked ? '' : ' locked') + (stars >= 2 ? ' done' : '');
+      btn.className = 'btn level-btn' + (unlocked ? '' : ' locked') + (stars >= 2 ? ' done' : '');
 
       const num = document.createElement('span');
       num.className = 'level-num';
@@ -1317,9 +1318,13 @@
     });
 
     $('btnQuit').addEventListener('click', () => {
-      if (state.running && state.taskIndex > 0 && !confirm('Runde wirklich abbrechen?')) return;
+      if (state.running && state.taskIndex > 0 && window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance($('quitModal')).show();
+        return;
+      }
       quitToMenu();
     });
+    $('btnQuitConfirm').addEventListener('click', quitToMenu);
     $('btnMenu').addEventListener('click', quitToMenu);
     $('btnAgain').addEventListener('click', () => { playSound('tap'); startGame(); });
 

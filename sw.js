@@ -1,5 +1,5 @@
 // Service Worker: macht die App offline nutzbar (Cache-first für die App-Dateien)
-const CACHE = 'einmaleins-v1';
+const CACHE = 'einmaleins-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,8 @@ const ASSETS = [
   './app.js',
   './icon.svg',
   './manifest.webmanifest',
+  './vendor/bootstrap.min.css',
+  './vendor/bootstrap.bundle.min.js',
 ];
 
 self.addEventListener('install', (e) => {
