@@ -19,82 +19,106 @@
     <section id="screen-start" class="screen active">
       <header class="hero text-center text-white pb-3">
         <div class="logo" aria-hidden="true">🧮</div>
-        <h1 class="fw-bold display-5 mb-0">1x1-Held</h1>
+        <h1 class="fw-bold mb-0">1x1-Held</h1>
         <p class="tagline fw-semibold mb-0">Werde zum Einmaleins-Meister!</p>
       </header>
 
-      <div class="card border-0 mb-3">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">Wie heißt du?</h2>
-          <div class="d-flex flex-wrap gap-2 player-chips" id="playerChips"></div>
-          <input id="playerName" class="form-control form-control-lg text-center fw-bold name-input" type="text" maxlength="16" placeholder="Dein Name" autocomplete="off">
-          <p class="daily-info text-center fw-bold rounded-3 py-2 px-2 mt-2 mb-0 hidden" id="dailyInfo"></p>
+      <nav class="nav nav-pills nav-justified start-nav gap-2 mb-3">
+        <button class="nav-link active fw-bold" data-bs-toggle="pill" data-bs-target="#tab-play" type="button">🎮 Spielen</button>
+        <button class="nav-link fw-bold" data-bs-toggle="pill" data-bs-target="#tab-board" type="button">🏆 Rangliste</button>
+        <button class="nav-link fw-bold" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button">🏅 Profil</button>
+      </nav>
+
+      <div class="tab-content">
+
+        <!-- ===== Tab: Spielen ===== -->
+        <div class="tab-pane fade show active" id="tab-play">
+
+          <div class="card border-0 mb-3">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">Wie heißt du?</h2>
+              <div class="d-flex flex-wrap gap-2 player-chips" id="playerChips"></div>
+              <input id="playerName" class="form-control form-control-lg text-center fw-bold name-input" type="text" maxlength="16" placeholder="Dein Name" autocomplete="off">
+              <p class="daily-info text-center fw-bold rounded-3 py-2 px-2 mt-2 mb-0 hidden" id="dailyInfo"></p>
+            </div>
+          </div>
+
+          <div class="card border-0 mb-3">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">Wie möchtest du spielen?</h2>
+              <div class="mode-grid" id="modeGrid"></div>
+            </div>
+          </div>
+
+          <div class="card border-0 mb-3" id="rowsCard">
+            <div class="card-body">
+              <button class="btn rows-toggle w-100 d-flex justify-content-between align-items-center fw-bold p-0 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rowsCollapse" aria-expanded="false">
+                <span class="fs-6">🔢 Reihen: <span class="text-primary-emphasis" id="rowsSummary">Alle gemischt</span></span>
+                <span class="rows-caret" aria-hidden="true">▾</span>
+              </button>
+              <div class="collapse" id="rowsCollapse">
+                <div class="row-chips my-3" id="rowChips"></div>
+                <button id="btnAllRows" class="btn chip chip-all w-100" type="button">✨ Alle gemischt</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 mb-3 hidden" id="duelCard">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">⚔️ Gegen wen spielst du?</h2>
+              <div class="d-flex flex-wrap gap-2 player-chips" id="duelChips"></div>
+              <input id="duelName" class="form-control form-control-lg text-center fw-bold name-input" type="text" maxlength="16" placeholder="Name des Gegners" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="card border-0 mb-3 hidden" id="adventureCard">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">🗺️ Deine Level-Karte</h2>
+              <div class="level-grid mb-2" id="levelGrid"></div>
+              <p class="text-center text-secondary fw-semibold small mb-0">Hol dir mindestens 2 Sterne ⭐⭐, um das nächste Level freizuschalten!</p>
+            </div>
+          </div>
+
+          <button id="btnStart" class="btn btn-lg w-100 fw-bold btn-start" type="button">Los geht's! 🚀</button>
+          <p id="startHint" class="start-hint text-center text-white fw-bold mt-2 hidden"></p>
         </div>
-      </div>
 
-      <div class="card border-0 mb-3" id="rowsCard">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">Welche Reihen übst du heute?</h2>
-          <div class="row-chips mb-2" id="rowChips"></div>
-          <button id="btnAllRows" class="btn chip chip-all w-100" type="button">✨ Alle gemischt</button>
+        <!-- ===== Tab: Rangliste ===== -->
+        <div class="tab-pane fade" id="tab-board">
+          <div class="card border-0 mb-3">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">🏆 Rangliste</h2>
+              <nav class="nav nav-pills gap-2 mb-3" id="lbTabs"></nav>
+              <ol class="list-group lb-list gap-2" id="lbList"></ol>
+              <p id="lbEmpty" class="text-center text-secondary fw-semibold mb-0">Noch keine Einträge – spiele die erste Runde!</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="card border-0 mb-3">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">Wie möchtest du spielen?</h2>
-          <div class="mode-grid" id="modeGrid"></div>
+        <!-- ===== Tab: Profil ===== -->
+        <div class="tab-pane fade" id="tab-profile">
+          <div class="card border-0 mb-3" id="badgeCard">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">🏅 Abzeichen</h2>
+              <div class="badge-grid" id="badgeGrid"></div>
+            </div>
+          </div>
+
+          <div class="card border-0 mb-3" id="statsCard">
+            <div class="card-body">
+              <h2 class="card-title fs-5 fw-bold mb-3">📊 Statistik</h2>
+              <div class="stats-grid mb-3" id="statsGrid"></div>
+              <p class="text-center text-secondary fw-semibold small mb-0" id="statsSummary"></p>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button id="btnExport" class="btn btn-sm btn-mini fw-bold" type="button">💾 Sichern</button>
+            <button id="btnImport" class="btn btn-sm btn-mini fw-bold" type="button">📥 Laden</button>
+            <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+          </div>
         </div>
-      </div>
 
-      <div class="card border-0 mb-3 hidden" id="duelCard">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">⚔️ Gegen wen spielst du?</h2>
-          <div class="d-flex flex-wrap gap-2 player-chips" id="duelChips"></div>
-          <input id="duelName" class="form-control form-control-lg text-center fw-bold name-input" type="text" maxlength="16" placeholder="Name des Gegners" autocomplete="off">
-        </div>
-      </div>
-
-      <div class="card border-0 mb-3 hidden" id="adventureCard">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">🗺️ Deine Level-Karte</h2>
-          <div class="level-grid mb-2" id="levelGrid"></div>
-          <p class="text-center text-secondary fw-semibold small mb-0">Hol dir mindestens 2 Sterne ⭐⭐, um das nächste Level freizuschalten!</p>
-        </div>
-      </div>
-
-      <button id="btnStart" class="btn btn-lg w-100 fw-bold btn-start" type="button">Los geht's! 🚀</button>
-      <p id="startHint" class="start-hint text-center text-white fw-bold mt-2 hidden"></p>
-
-      <div class="card border-0 mt-3 mb-3">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">🏆 Rangliste</h2>
-          <nav class="nav nav-pills gap-2 mb-3" id="lbTabs"></nav>
-          <ol class="list-group lb-list gap-2" id="lbList"></ol>
-          <p id="lbEmpty" class="text-center text-secondary fw-semibold mb-0">Noch keine Einträge – spiele die erste Runde!</p>
-        </div>
-      </div>
-
-      <div class="card border-0 mb-3" id="badgeCard">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">🏅 Abzeichen</h2>
-          <div class="badge-grid" id="badgeGrid"></div>
-        </div>
-      </div>
-
-      <div class="card border-0 mb-3 hidden" id="statsCard">
-        <div class="card-body">
-          <h2 class="card-title fs-5 fw-bold mb-3">📊 Statistik</h2>
-          <div class="stats-grid mb-3" id="statsGrid"></div>
-          <p class="text-center text-secondary fw-semibold small mb-0" id="statsSummary"></p>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-center gap-2">
-        <button id="btnStats" class="btn btn-sm btn-mini fw-bold" type="button">📊 Statistik</button>
-        <button id="btnExport" class="btn btn-sm btn-mini fw-bold" type="button">💾 Sichern</button>
-        <button id="btnImport" class="btn btn-sm btn-mini fw-bold" type="button">📥 Laden</button>
-        <input id="importFile" type="file" accept="application/json,.json" class="hidden">
       </div>
     </section>
 

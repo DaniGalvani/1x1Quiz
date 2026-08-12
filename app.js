@@ -557,7 +557,18 @@
       btn.classList.toggle('selected', state.selectedRows.has(Number(btn.dataset.row)));
     });
     $('btnAllRows').classList.toggle('selected', state.selectedRows.size === ROWS.length);
+    updateRowsSummary();
     updateStartUI();
+  }
+
+  // Zusammenfassung im zugeklappten Reihen-Bereich, z.B. "Alle gemischt" oder "2er, 4er"
+  function updateRowsSummary() {
+    const el = $('rowsSummary');
+    const sel = [...state.selectedRows].sort((a, b) => a - b);
+    el.textContent = sel.length === ROWS.length ? 'Alle gemischt'
+      : sel.length === 0 ? 'keine ausgewählt'
+      : sel.length <= 4 ? sel.map((r) => `${r}er`).join(', ')
+      : `${sel.length} Reihen`;
   }
 
   function saveRows() {
@@ -1189,7 +1200,7 @@
     renderModeBadges();
     renderLeaderboard();
     updateModeVisibility();
-    if (!$('statsCard').classList.contains('hidden')) renderStats();
+    renderStats();
   }
 
   function quitToMenu() {
@@ -1258,16 +1269,6 @@
       updateStartUI();
     });
 
-    $('btnStats').addEventListener('click', () => {
-      playSound('tap');
-      const card = $('statsCard');
-      card.classList.toggle('hidden');
-      if (!card.classList.contains('hidden')) {
-        renderStats();
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-
     $('btnExport').addEventListener('click', () => { playSound('tap'); exportData(); });
     $('btnImport').addEventListener('click', () => { playSound('tap'); $('importFile').click(); });
     $('importFile').addEventListener('change', (e) => {
@@ -1303,8 +1304,9 @@
 
     document.addEventListener('keydown', (e) => {
       if ($('screen-start').classList.contains('active')) {
-        // Enter startet die Runde (außer im Abenteuer, dort starten die Level-Buttons)
-        if (e.key === 'Enter' && !$('btnStart').disabled && !$('btnStart').classList.contains('hidden')) {
+        // Enter startet die Runde (nur im Spielen-Tab, nicht im Abenteuer)
+        if (e.key === 'Enter' && $('tab-play').classList.contains('active')
+          && !$('btnStart').disabled && !$('btnStart').classList.contains('hidden')) {
           e.preventDefault();
           ensureAudio();
           startGame();

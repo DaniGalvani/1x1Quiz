@@ -47,8 +47,10 @@ body {
 }
 
 /* ===== Held-Kopf ===== */
+.hero h1 { font-size: 2.4rem; }
+
 .logo {
-  font-size: 64px;
+  font-size: 52px;
   line-height: 1;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
   animation: bounce 2.4s ease-in-out infinite;
@@ -61,6 +63,34 @@ body {
 
 .hero h1 { text-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); }
 .tagline { opacity: 0.92; }
+
+/* ===== Start-Navigation (Spielen / Rangliste / Profil) ===== */
+.start-nav .nav-link {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 10px 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.start-nav .nav-link.active {
+  background: #fff;
+  color: var(--violet);
+  text-shadow: none;
+  box-shadow: 0 4px 14px rgba(59, 30, 122, 0.25);
+}
+
+/* ===== Reihen-Aufklapper ===== */
+.rows-toggle { color: var(--ink); border: none; }
+.rows-toggle:hover, .rows-toggle:active { color: var(--ink); }
+.rows-toggle #rowsSummary { color: var(--violet); }
+
+.rows-caret {
+  transition: transform 0.2s ease;
+  color: var(--ink-soft);
+}
+
+.rows-toggle[aria-expanded="true"] .rows-caret { transform: rotate(180deg); }
 
 /* ===== Karten (Bootstrap .card, hier verspielter) ===== */
 .card {
