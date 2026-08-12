@@ -1,0 +1,9 @@
+# Lokale Claude-Code-Einstellungen (maschinenspezifisch)
+.claude/settings.local.json
+
+# Abhängigkeiten / Tooling
+node_modules/
+
+# Betriebssystem-Müll
+Thumbs.db
+.DS_Store
