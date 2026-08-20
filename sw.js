@@ -1,5 +1,5 @@
 // Service Worker: macht die App offline nutzbar (Cache-first für die App-Dateien)
-const CACHE = 'einmaleins-v4';
+const CACHE = 'einmaleins-v15';
 const ASSETS = [
   './',
   './index.html',

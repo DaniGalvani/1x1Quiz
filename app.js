@@ -16,7 +16,9 @@
     practice:   { icon: '📘', name: 'Übungsrunde',     short: 'Übung',     desc: '20 Aufgaben ohne Zeitdruck',        board: true,  rules: { total: 20, kind: 'mult' } },
     blitz:      { icon: '⚡', name: 'Blitzmodus',      short: 'Blitz',     desc: '60 Sekunden Zeit',                  board: true,  rules: { time: 60, kind: 'mult' } },
     luecken:    { icon: '❓', name: 'Lücken-Modus',    short: 'Lücken',    desc: '4 × ? = 28',                        board: true,  rules: { total: 20, kind: 'gap' } },
-    geteilt:    { icon: '➗', name: 'Geteilt-Modus',   short: 'Geteilt',   desc: '28 ÷ 4 = ?',                        board: true,  rules: { total: 20, kind: 'div' } },
+    geteilt:    { icon: '➗', name: 'Geteilt-Start',   short: 'Geteilt 1', desc: '20 Aufgaben Schritt für Schritt',   board: true,  rules: { total: 20, kind: 'longdiv', digits: 1 } },
+    geteilt2:   { icon: '📝', name: 'Schriftlich geteilt', short: 'Geteilt 2', desc: '15 Aufgaben mit 2-stelligem Ergebnis', board: true, rules: { total: 15, kind: 'longdiv', digits: 2 } },
+    geteilt3:   { icon: '🎓', name: 'Geteilt-Profi',   short: 'Geteilt 3', desc: '12 Aufgaben mit 3-stelligem Ergebnis', board: true, rules: { total: 12, kind: 'longdiv', digits: 3 } },
     stimmts:    { icon: '✅', name: "Stimmt's?",       short: "Stimmt's",  desc: 'Richtig oder falsch?',              board: true,  rules: { total: 20, kind: 'bool' } },
     ueberleben: { icon: '💖', name: 'Überleben',       short: 'Überleben', desc: '3 Leben – wie weit kommst du?',     board: true,  rules: { lives: 3, kind: 'mult' } },
     zeitrennen: { icon: '⏱️', name: 'Zeit-Rennen',     short: 'Rennen',    desc: 'Richtige geben +3 Sekunden',        board: true,  rules: { time: 20, bonus: 3, kind: 'mult' } },
@@ -30,6 +32,7 @@
   const STORE = {
     rows: 'einmaleins.rows',
     muted: 'einmaleins.muted',
+    divisionHelp: 'einmaleins.geteilt.hilfetext',
     player: 'einmaleins.player',
     board: 'einmaleins.leaderboard',
     players: 'einmaleins.players',
@@ -72,9 +75,13 @@
     correct: 0,
     wrong: 0,
     taskIndex: 0,
-    current: null,        // { a, b, kind, display, answer, solution, isTrue, key }
+    current: null,        // aktuelle Aufgabe samt Lösung und Darstellungsdaten
     lastTaskKey: '',
     input: '',
+    divisionStep: 0,
+    divisionStage: 'quotient',
+    divisionEntries: [],
+    divisionReveal: false,
     timeLeft: 0,
     lives: 0,
     timerId: null,
@@ -91,6 +98,7 @@
   // ===== Sounds (Web Audio, keine Dateien) =====
   let audioCtx = null;
   let muted = localStorage.getItem(STORE.muted) === '1';
+  let divisionHelp = localStorage.getItem(STORE.divisionHelp) !== '0';
 
   function ensureAudio() {
     if (!audioCtx) {
@@ -783,6 +791,49 @@
     return best;
   }
 
+  // Baut die Einzelschritte der schriftlichen Division auf. Jede Zeile kennt
+  // ihre genaue Ziffernposition, damit Produkt, Strich und Rest wie auf Papier
+  // sauber unter dem Dividenden stehen.
+  function buildDivisionSteps(dividend, divisor) {
+    const digits = String(dividend).split('').map(Number);
+    const steps = [];
+    let partial = 0;
+    let started = false;
+
+    digits.forEach((digit, endIndex) => {
+      partial = partial * 10 + digit;
+      if (!started && partial < divisor) return;
+      started = true;
+
+      const quotientDigit = Math.floor(partial / divisor);
+      const product = quotientDigit * divisor;
+      const remainder = partial - product;
+      const hasNextDigit = endIndex < digits.length - 1;
+      const nextPartial = hasNextDigit ? remainder * 10 + digits[endIndex + 1] : remainder;
+      steps.push({
+        partial,
+        quotientDigit,
+        product,
+        remainder,
+        nextPartial,
+        endIndex,
+        nextEndIndex: hasNextDigit ? endIndex + 1 : endIndex,
+        hasNextDigit,
+      });
+      partial = remainder;
+    });
+
+    return steps;
+  }
+
+  // Ziffern ohne Null halten den Einstieg übersichtlich; die Rechenschritte
+  // selbst können selbstverständlich Reste und heruntergeholte Nullen enthalten.
+  function randomQuotient(digits) {
+    let quotient = 0;
+    for (let i = 0; i < digits; i++) quotient = quotient * 10 + Math.floor(Math.random() * 9) + 1;
+    return quotient;
+  }
+
   function generateTask(rules) {
     let a, b;
     if (rules.source === 'pool') {
@@ -795,6 +846,22 @@
     } else {
       ({ a, b } = pickFact());
     }
+    if (rules.kind === 'longdiv') {
+      const quotient = randomQuotient(rules.digits || 1);
+      const dividend = quotient * b;
+      return {
+        a: quotient,
+        b,
+        kind: 'longdiv',
+        dividend,
+        answer: quotient,
+        display: `${dividend} : ${b}`,
+        solution: `${dividend} : ${b} = ${quotient}`,
+        steps: buildDivisionSteps(dividend, b),
+        key: `longdiv:${dividend}:${b}`,
+      };
+    }
+
     const p = a * b;
 
     switch (rules.kind) {
@@ -851,25 +918,165 @@
     state.lastTaskKey = task.key;
     state.current = task;
     state.input = '';
+    state.divisionStep = 0;
+    state.divisionStage = 'quotient';
+    state.divisionEntries = task.kind === 'longdiv' ? task.steps.map(() => ({})) : [];
+    state.divisionReveal = false;
     state.locked = false;
 
     const taskEl = $('taskText');
     taskEl.textContent = task.display;
     taskEl.classList.toggle('long', task.display.length > 6);
+    const isLongDivision = task.kind === 'longdiv';
+    taskEl.classList.toggle('hidden', isLongDivision);
+    $('longDivision').classList.toggle('hidden', !isLongDivision);
+    $('taskCard').classList.toggle('division-task', isLongDivision);
     taskEl.style.animation = 'none';
     void taskEl.offsetWidth; // Animation neu starten
     taskEl.style.animation = '';
 
     const isBool = task.kind === 'bool';
     $('keypad').classList.toggle('hidden', isBool);
-    $('answerDisplay').classList.toggle('hidden', isBool);
+    $('answerDisplay').classList.toggle('hidden', isBool || isLongDivision);
     $('truthButtons').classList.toggle('hidden', !isBool);
 
     renderInput();
     clearFeedback();
   }
 
+  function divisionNumberSpan(value, endIndex, className, columnLength = String(value).length) {
+    const span = document.createElement('span');
+    const text = String(value);
+    const startIndex = endIndex - columnLength + 1;
+    span.className = className;
+    span.textContent = text;
+    span.style.gridColumn = `${startIndex + 2} / span ${columnLength}`;
+    return span;
+  }
+
+  function currentDivisionExpected() {
+    const step = state.current.steps[state.divisionStep];
+    if (state.divisionStage === 'product') return step.product;
+    if (state.divisionStage === 'value') return step.nextPartial;
+    return step.quotientDigit;
+  }
+
+  function renderDivisionHelp() {
+    const prompt = $('divisionPrompt');
+    const button = $('btnDivisionHelp');
+    prompt.classList.toggle('hidden', !divisionHelp);
+    button.setAttribute('aria-pressed', divisionHelp ? 'true' : 'false');
+    $('divisionHelpLabel').textContent = divisionHelp ? 'Hilfetext ausblenden' : 'Hilfetext einblenden';
+  }
+
+  function renderLongDivision() {
+    const task = state.current;
+    if (!task || task.kind !== 'longdiv') return;
+
+    const equation = $('divisionEquation');
+    equation.innerHTML = '';
+    const dividend = document.createElement('span');
+    dividend.className = 'division-dividend';
+    dividend.textContent = task.dividend;
+    const sign = document.createElement('span');
+    sign.className = 'division-sign';
+    sign.textContent = ` : ${task.b} = `;
+    const quotient = document.createElement('span');
+    quotient.className = 'division-quotient';
+
+    task.steps.forEach((step, index) => {
+      const entry = state.divisionEntries[index] || {};
+      const digit = document.createElement('span');
+      digit.className = 'division-quotient-digit';
+      if (state.divisionReveal) {
+        digit.classList.add('done');
+        digit.textContent = step.quotientDigit;
+      } else if (index < state.divisionStep || (index === state.divisionStep && state.divisionStage !== 'quotient')) {
+        digit.classList.add('done');
+        digit.textContent = entry.quotient;
+      } else if (index === state.divisionStep && state.divisionStage === 'quotient') {
+        digit.classList.add('active');
+        digit.textContent = state.input || '?';
+      } else {
+        digit.classList.add('future');
+        digit.textContent = '·';
+      }
+      quotient.appendChild(digit);
+    });
+    equation.append(dividend, sign, quotient);
+
+    const work = $('divisionWork');
+    work.innerHTML = '';
+    work.style.setProperty('--division-columns', String(String(task.dividend).length + 1));
+    task.steps.forEach((step, index) => {
+      const entry = state.divisionEntries[index] || {};
+      const isPrevious = index < state.divisionStep;
+      const isCurrent = index === state.divisionStep;
+      const showProduct = state.divisionReveal || isPrevious
+        || (isCurrent && state.divisionStage !== 'quotient');
+      const productActive = !state.divisionReveal && isCurrent && state.divisionStage === 'product';
+
+      if (showProduct) {
+        const productRow = document.createElement('div');
+        productRow.className = 'division-row division-product-row';
+        const productLength = String(step.product).length;
+        const productStart = step.endIndex - productLength + 1;
+        const minus = document.createElement('span');
+        minus.className = 'division-minus';
+        minus.textContent = '−';
+        minus.style.gridColumn = String(productStart + 1);
+        const productValue = state.divisionReveal ? step.product
+          : productActive ? state.input || '?' : entry.product;
+        const productClass = `division-product${productActive ? ' division-entry active' : ''}`;
+        productRow.append(minus, divisionNumberSpan(productValue, step.endIndex, productClass, productLength));
+        work.appendChild(productRow);
+      }
+
+      const showValue = state.divisionReveal || isPrevious
+        || (isCurrent && state.divisionStage === 'value');
+      const valueActive = !state.divisionReveal && isCurrent && state.divisionStage === 'value';
+      if (showValue) {
+        const valueRow = document.createElement('div');
+        valueRow.className = 'division-row division-value-row';
+        const valueLength = String(step.nextPartial).length;
+        const value = state.divisionReveal ? step.nextPartial
+          : valueActive ? state.input || '?' : entry.value;
+        const valueClass = `division-value${valueActive ? ' division-entry active' : ''}`;
+        valueRow.appendChild(divisionNumberSpan(value, step.nextEndIndex, valueClass, valueLength));
+        work.appendChild(valueRow);
+      }
+    });
+
+    const prompt = $('divisionPrompt');
+    if (state.divisionReveal || state.divisionStep >= task.steps.length) {
+      prompt.textContent = 'So sieht die vollständige Rechnung aus.';
+    } else {
+      const step = task.steps[state.divisionStep];
+      const entry = state.divisionEntries[state.divisionStep];
+      if (state.divisionStage === 'product') {
+        prompt.textContent = `Rechne ${entry.quotient} · ${task.b} und schreibe das Ergebnis darunter.`;
+      } else if (state.divisionStage === 'value') {
+        if (step.hasNextDigit) {
+          const nextDigit = String(task.dividend)[step.endIndex + 1];
+          prompt.textContent = `Ziehe ab und hole die ${nextDigit} herunter. Welche Zahl entsteht?`;
+        } else {
+          prompt.textContent = 'Ziehe ab. Welcher Rest bleibt?';
+        }
+      } else {
+        prompt.textContent = `Wie oft geht die ${task.b} in die ${step.partial}?`;
+      }
+    }
+
+    renderDivisionHelp();
+    const instruction = divisionHelp ? prompt.textContent : 'Hilfetext ausgeschaltet.';
+    $('longDivision').setAttribute('aria-label', `${task.dividend} geteilt durch ${task.b}. ${instruction}`);
+  }
+
   function renderInput() {
+    if (state.current && state.current.kind === 'longdiv') {
+      renderLongDivision();
+      return;
+    }
     const display = $('answerDisplay');
     display.innerHTML = state.input === '' ? '<span class="placeholder">?</span>' : state.input;
   }
@@ -884,16 +1091,49 @@
   function handleKey(key) {
     if (!state.running || state.locked) return;
     if (state.current && state.current.kind === 'bool') return;
+    const isLongDivision = state.current && state.current.kind === 'longdiv';
     if (key === 'del') {
       state.input = state.input.slice(0, -1);
       playSound('tap');
       renderInput();
     } else if (key === 'ok') {
       if (state.input === '') return;
-      resolveAnswer(Number(state.input) === state.current.answer);
+      if (isLongDivision) {
+        const step = state.current.steps[state.divisionStep];
+        const expected = currentDivisionExpected();
+        if (Number(state.input) !== expected) {
+          state.divisionReveal = true;
+          renderLongDivision();
+          resolveAnswer(false);
+          return;
+        }
+        const entry = state.divisionEntries[state.divisionStep];
+        entry[state.divisionStage] = Number(state.input);
+        state.input = '';
+        if (state.divisionStage === 'quotient') {
+          state.divisionStage = 'product';
+        } else if (state.divisionStage === 'product') {
+          state.divisionStage = 'value';
+        } else if (state.divisionStep >= state.current.steps.length - 1) {
+          state.divisionReveal = true;
+          renderLongDivision();
+          resolveAnswer(true);
+        } else {
+          state.divisionStep += 1;
+          state.divisionStage = 'quotient';
+        }
+        if (!state.locked) {
+          playSound('correct');
+          renderLongDivision();
+        }
+      } else {
+        resolveAnswer(Number(state.input) === state.current.answer);
+      }
     } else if (/^\d$/.test(key)) {
-      if (state.input.length >= 3) return;
-      if (state.input === '' && key === '0') return; // keine führende Null
+      const expected = isLongDivision ? currentDivisionExpected() : null;
+      const maxLength = isLongDivision ? String(expected).length : 3;
+      if (state.input.length >= maxLength) return;
+      if (state.input === '' && key === '0' && (!isLongDivision || expected !== 0)) return;
       state.input += key;
       playSound('tap');
       renderInput();
@@ -937,11 +1177,11 @@
       fb.className = 'feedback good';
       playSound('correct');
       confettiBurst(card, 14);
-      state.feedbackId = setTimeout(advance, 900);
+      state.feedbackId = setTimeout(advance, task.kind === 'longdiv' ? 1500 : 900);
     } else {
       state.streak = 0;
       state.wrong += 1;
-      addToPool(currentPlayerName(), task.a, task.b);
+      if (task.kind !== 'longdiv') addToPool(currentPlayerName(), task.a, task.b);
       if (rules.lives) state.lives -= 1;
       updateStreakUI();
       card.classList.add('wrong');
@@ -949,7 +1189,7 @@
       fb.className = 'feedback bad';
       playSound('wrong');
       if (navigator.vibrate) navigator.vibrate(150);
-      state.feedbackId = setTimeout(advance, 1600);
+      state.feedbackId = setTimeout(advance, task.kind === 'longdiv' ? 2400 : 1600);
     }
 
     updateProgressUI();
@@ -1293,6 +1533,13 @@
     $('keypad').addEventListener('click', (e) => {
       const key = e.target.closest('.key');
       if (key) handleKey(key.dataset.key);
+    });
+
+    $('btnDivisionHelp').addEventListener('click', () => {
+      divisionHelp = !divisionHelp;
+      localStorage.setItem(STORE.divisionHelp, divisionHelp ? '1' : '0');
+      playSound('tap');
+      renderLongDivision();
     });
 
     $('truthButtons').addEventListener('click', (e) => {

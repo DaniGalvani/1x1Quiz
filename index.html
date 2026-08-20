@@ -141,6 +141,16 @@
       <div class="card border-0 task-card text-center" id="taskCard">
         <div class="card-body">
           <div class="task fw-bold" id="taskText">7 × 4</div>
+          <div class="long-division hidden" id="longDivision" aria-live="polite">
+            <div class="division-paper">
+              <div class="division-equation" id="divisionEquation"></div>
+              <div class="division-work" id="divisionWork"></div>
+            </div>
+            <p class="division-prompt mb-0" id="divisionPrompt"></p>
+            <button class="btn division-help-toggle" id="btnDivisionHelp" type="button" aria-pressed="true">
+              💡 <span id="divisionHelpLabel">Hilfetext ausblenden</span>
+            </button>
+          </div>
           <div class="answer-display fw-bold" id="answerDisplay"><span class="placeholder">?</span></div>
           <div class="feedback fw-bold" id="feedback"></div>
         </div>

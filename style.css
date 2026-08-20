@@ -20,6 +20,7 @@
 
 body {
   font-family: var(--bs-body-font-family);
+  font-size: 16px;
   color: var(--ink);
   min-height: 100vh;
   min-height: 100dvh;
@@ -31,8 +32,16 @@ body {
 
 .app {
   width: 100%;
-  max-width: 480px;
+  max-width: 1080px;
   padding: 20px 16px 32px;
+}
+
+#screen-quiz,
+#screen-handover,
+#screen-result {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
 }
 
 .hidden { display: none !important; }
@@ -47,10 +56,10 @@ body {
 }
 
 /* ===== Held-Kopf ===== */
-.hero h1 { font-size: 2.4rem; }
+.hero h1 { font-size: 2.15rem; }
 
 .logo {
-  font-size: 52px;
+  font-size: 44px;
   line-height: 1;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
   animation: bounce 2.4s ease-in-out infinite;
@@ -64,12 +73,14 @@ body {
 .hero h1 { text-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); }
 .tagline { opacity: 0.92; }
 
+#screen-start .hero { padding-bottom: 8px !important; }
+
 /* ===== Start-Navigation (Spielen / Rangliste / Profil) ===== */
 .start-nav .nav-link {
   color: #fff;
   background: rgba(255, 255, 255, 0.18);
   border-radius: 14px;
-  padding: 10px 4px;
+  padding: 8px 4px;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
@@ -99,6 +110,24 @@ body {
 }
 
 .card-title { color: var(--ink); }
+
+/* Der Startbereich bleibt auch mit vielen Spielmodi schnell erreichbar. */
+#screen-start .start-nav { margin-bottom: 10px !important; }
+
+#tab-play > .card { margin-bottom: 10px !important; }
+
+#tab-play > .card > .card-body { padding: 12px; }
+
+#tab-play .card-title {
+  margin-bottom: 10px !important;
+  font-size: 1.15rem !important;
+}
+
+#tab-play .name-input {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 1.15rem;
+}
 
 /* ===== Eingabefelder ===== */
 .name-input {
@@ -186,24 +215,30 @@ body {
 /* ===== Modus-Kacheln ===== */
 .mode-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .mode-tile {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 2px;
+  gap: 1px;
   background: #f7f5fd;
   border: 3px solid #e6e0f7;
   border-radius: 16px;
-  padding: 12px 8px 10px;
+  padding: 8px 5px 7px;
   transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
 .mode-tile:active { transform: scale(0.96); }
+
+.mode-tile:hover {
+  background: #f1eefb;
+  border-color: #e6e0f7;
+}
 
 .mode-tile.selected {
   border-color: var(--violet);
@@ -211,19 +246,33 @@ body {
   box-shadow: 0 4px 14px rgba(124, 58, 237, 0.18);
 }
 
-.mt-icon { font-size: 1.7rem; line-height: 1.2; }
-.mt-name { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
-.mt-desc { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); line-height: 1.25; }
+.mode-tile.selected:hover {
+  background: #ebe4fb;
+}
+
+.mt-icon { font-size: 1.65rem; line-height: 1.15; }
+.mt-name {
+  max-width: 100%;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+.mt-desc { font-size: 1rem; font-weight: 600; color: var(--ink-soft); line-height: 1.25; }
 
 .mt-hs {
-  margin-top: 6px;
-  font-size: 0.78rem;
+  max-width: 100%;
+  margin-top: 4px;
+  font-size: 1rem;
   font-weight: 700;
+  line-height: 1.15;
   color: #b8860b;
   background: #fff8e1;
   border-radius: 10px;
-  padding: 3px 8px;
-  white-space: nowrap;
+  padding: 2px 6px;
+  white-space: normal;
 }
 
 /* ===== Level-Karte (Abenteuer) ===== */
@@ -251,8 +300,8 @@ body {
 .level-btn.done { background: #f0fdf4; border-color: #bbf7d0; }
 
 .level-num { font-size: 1.5rem; font-weight: 800; color: var(--ink); }
-.level-num small { font-size: 0.75rem; font-weight: 700; color: var(--ink-soft); }
-.level-stars { font-size: 0.8rem; letter-spacing: 1px; }
+.level-num small { font-size: 1rem; font-weight: 700; color: var(--ink-soft); }
+.level-stars { font-size: 1rem; letter-spacing: 1px; }
 
 /* ===== Haupt-Buttons ===== */
 .btn-start {
@@ -284,7 +333,7 @@ body {
 #lbTabs .nav-link {
   flex: 1 1 auto;
   min-width: 90px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--ink-soft);
   background: #f1eefb;
@@ -334,7 +383,7 @@ body {
 
 .badge-tile.locked { background: #f1eefb; filter: grayscale(1); opacity: 0.55; }
 .badge-icon { font-size: 1.4rem; }
-.badge-name { font-size: 0.78rem; font-weight: 700; line-height: 1.2; }
+.badge-name { font-size: 1rem; font-weight: 700; line-height: 1.25; }
 
 /* ===== Statistik ===== */
 .stats-grid {
@@ -352,8 +401,8 @@ body {
   font-weight: 700;
 }
 
-.stat-tile .st-row { font-size: 0.8rem; color: var(--ink-soft); }
-.stat-tile .st-val { font-size: 1.1rem; }
+.stat-tile .st-row { font-size: 1rem; color: var(--ink-soft); }
+.stat-tile .st-val { font-size: 1.2rem; }
 
 .stat-tile.none { background: #f1eefb; color: var(--ink-soft); }
 .stat-tile.good { background: #dcfce7; color: #15803d; }
@@ -457,6 +506,131 @@ body {
 }
 
 .answer-display .placeholder { color: #d5ccee; }
+
+/* ===== Schriftliche Division ===== */
+.long-division {
+  width: 100%;
+  margin: 0 auto 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.division-paper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.division-equation {
+  display: flex;
+  align-items: baseline;
+  margin-left: 1ch;
+  white-space: nowrap;
+}
+
+.division-dividend,
+.division-sign,
+.division-quotient {
+  font: inherit;
+  white-space: nowrap;
+}
+
+.division-quotient { display: flex; }
+
+.division-quotient-digit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1ch;
+  min-width: 1ch;
+  height: 1.05em;
+  border-radius: 5px;
+}
+
+.division-quotient-digit.done { color: var(--green-dark); }
+.division-quotient-digit.future { color: #d5ccee; }
+
+.division-quotient-digit.active {
+  color: var(--violet);
+  background: #f3ecff;
+  box-shadow: inset 0 -3px 0 var(--violet);
+  animation: division-cursor 1s ease-in-out infinite;
+}
+
+@keyframes division-cursor {
+  0%, 100% { background: #f3ecff; }
+  50% { background: #e8dcff; }
+}
+
+.division-work {
+  margin-top: 1px;
+  font: inherit;
+}
+
+.division-row {
+  display: grid;
+  grid-template-columns: repeat(var(--division-columns), 1ch);
+  width: max-content;
+  height: 1.05em;
+  text-align: right;
+}
+
+.division-minus { color: var(--red); }
+
+.division-product {
+  border-bottom: 2px solid var(--ink-soft);
+  line-height: 0.98;
+}
+
+.division-value { color: var(--violet); }
+
+.division-entry.active {
+  color: var(--violet);
+  background: #f3ecff;
+  border-radius: 5px;
+  outline: 2px dashed #a78bfa;
+  outline-offset: -1px;
+  text-align: left;
+}
+
+.division-prompt {
+  width: min(360px, calc(100vw - 72px));
+  margin-top: 10px;
+  color: var(--ink-soft);
+  font-family: var(--bs-body-font-family);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.division-help-toggle {
+  margin-top: 6px;
+  padding: 3px 9px;
+  color: var(--ink-soft);
+  background: #f1eefb;
+  border: 1px solid #e1daf5;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.division-help-toggle:hover,
+.division-help-toggle:focus,
+.division-help-toggle:active {
+  color: var(--violet-dark);
+  background: #ebe4fb;
+}
 
 .feedback { min-height: 30px; font-size: 1.15rem; }
 .feedback.good { color: var(--green-dark); }
@@ -594,6 +768,8 @@ body {
     flex-direction: column;
   }
 
+  #screen-start .mt-desc { display: none; }
+
   .screen.active { flex: 1; }
 
   /* Quiz: exakt eine Bildschirmhöhe – nichts scrollt, alles skaliert mit */
@@ -637,6 +813,18 @@ body {
     margin-top: 2px;
   }
 
+  #screen-quiz .division-paper {
+    font-size: clamp(1.1rem, 3.2vh, 1.6rem);
+    font-size: clamp(1.1rem, 3.2dvh, 1.6rem);
+  }
+
+  #screen-quiz .division-prompt {
+    margin-top: 6px;
+    font-size: 1rem;
+  }
+
+  #screen-quiz .division-task .feedback { font-size: 1rem; }
+
   #screen-quiz .feedback { min-height: 22px; font-size: 1rem; }
 
   .keypad { gap: 8px; margin-top: 10px !important; }
@@ -659,9 +847,80 @@ body {
   .result-card { margin-top: 0; }
 }
 
+/* ===== Desktop: breite Fläche für Auswahl und Übersichten nutzen ===== */
+@media (min-width: 768px) {
+  .app { padding-inline: 24px; }
+
+  #screen-start .hero h1 { font-size: 2.5rem; }
+  #screen-start .logo { font-size: 52px; }
+  #screen-start .tagline { font-size: 1.08rem; }
+
+  #screen-start .start-nav .nav-link {
+    padding-block: 10px;
+    font-size: 1.08rem;
+  }
+
+  #tab-play > .card > .card-body { padding: 18px; }
+
+  #tab-play .card-title { font-size: 1.3rem !important; }
+  #tab-play .name-input { font-size: 1.25rem; }
+
+  .mode-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .mode-tile {
+    gap: 3px;
+    padding: 14px 10px 12px;
+  }
+
+  .mt-icon { font-size: 1.9rem; }
+  .mt-name { font-size: 1.08rem; }
+  .mt-desc { display: inline; font-size: 1rem; }
+  .mt-hs { font-size: 1rem; }
+
+  .row-chips { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .level-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .badge-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .stats-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+
+  .badge-name { font-size: 1rem; }
+  .stat-tile .st-row { font-size: 1rem; }
+  .stat-tile .st-val { font-size: 1.3rem; }
+}
+
 /* ===== Sehr kleine Bildschirme ===== */
 @media (max-width: 360px) {
-  .hero h1 { font-size: 2.2rem; }
+  .hero h1 { font-size: 2rem; }
+
+  #screen-start .start-nav .nav-link { font-size: 1rem; }
+
+  .mt-desc { display: none; }
+
+  .mode-tile { padding: 7px 2px 6px; }
+
+  .mt-name {
+    font-size: 1rem;
+  }
+
+  .mt-hs {
+    padding: 1px 4px;
+    font-size: 1rem;
+    line-height: 1.1;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 340px) {
+  .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Bootstrap-Kleinschrift darf die feste Lesbarkeitsgrenze nicht unterschreiten. */
+.app .small,
+.app small,
+.app .btn-sm {
+  font-size: 1rem !important;
 }
 
 @media (min-height: 800px) and (min-width: 561px) {

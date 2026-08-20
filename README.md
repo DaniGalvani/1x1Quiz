@@ -1,6 +1,6 @@
 # 1x1-Held – Das Einmaleins-Quiz
 
-1x1-Held ist eine kindgerechte Web-App zum Üben des kleinen Einmaleins. Die Anwendung bietet neun Spielmodi, mehrere Spielerprofile, Statistiken, persönliche Bestleistungen, Abzeichen, einen Abenteuer-Fortschritt und einen lokalen Zwei-Spieler-Modus.
+1x1-Held ist eine kindgerechte Web-App zum Üben des kleinen Einmaleins und der passenden Geteiltaufgaben. Die Anwendung bietet zwölf Spielmodi, mehrere Spielerprofile, Statistiken, persönliche Bestleistungen, Abzeichen, einen Abenteuer-Fortschritt und einen lokalen Zwei-Spieler-Modus.
 
 Die App besteht ausschließlich aus HTML, CSS und JavaScript. Es gibt keine externen Abhängigkeiten, keinen Build-Schritt und kein Backend. Alle Spielstände bleiben lokal im Browser. Dank Web-App-Manifest und Service Worker lässt sich 1x1-Held außerdem installieren und nach dem ersten vollständigen Laden offline verwenden.
 
@@ -23,7 +23,8 @@ Die App besteht ausschließlich aus HTML, CSS und JavaScript. Es gibt keine exte
 ## Funktionen
 
 - Reihen von 2 bis 10 einzeln oder gemeinsam auswählbar
-- Neun unterschiedliche Spielmodi
+- Zwölf unterschiedliche Spielmodi
+- Drei geführte Geteilt-Modi mit schriftlicher Rechnung untereinander
 - Spielerprofile mit schneller Namensauswahl
 - Lokales Duell für zwei Personen an einem Gerät
 - Automatisches Fehler-Training pro Spieler
@@ -86,7 +87,7 @@ Drücke im Terminal `Strg+C`.
 2. Wähle eine oder mehrere Reihen zwischen 2 und 10. Mit **Alle gemischt** werden alle Reihen gemeinsam aktiviert. Im Fehler-Training und im Abenteuer wird die Reihenauswahl automatisch bestimmt.
 3. Wähle einen Spielmodus.
 4. Klicke auf **Los geht's!**. Im Abenteuer startest du stattdessen ein freigeschaltetes Level direkt über die Level-Karte.
-5. Gib die Lösung über den Ziffernblock ein und bestätige mit **OK**. Im Modus **Stimmt's?** wählst du **Stimmt** oder **Stimmt nicht**.
+5. Gib die Lösung über den Ziffernblock ein und bestätige mit **OK**. In den Geteilt-Modi schreibst du selbst nacheinander die Ergebnisziffer, das Produkt zum Abziehen und den Rest beziehungsweise die heruntergeholte Zahl an die richtige Stelle. Den erklärenden Hilfetext unter der Rechnung kannst du jederzeit ein- oder ausblenden. Im Modus **Stimmt's?** wählst du **Stimmt** oder **Stimmt nicht**.
 6. Nach jeder Antwort zeigt die App sofort an, ob die Lösung richtig war. Bei einer falschen Antwort wird zusätzlich die korrekte Rechnung eingeblendet.
 7. Am Rundenende siehst du Punkte, richtige und falsche Antworten, die beste Serie sowie die verdienten Sterne.
 
@@ -111,7 +112,9 @@ Auf dem Startbildschirm startet `Enter` eine spielbereite Runde. Im Abenteuer we
 | **Übungsrunde** | Normale Multiplikationsaufgaben | Nach 20 Aufgaben | Ja |
 | **Blitzmodus** | So viele Multiplikationsaufgaben wie möglich | Nach 60 Sekunden | Ja |
 | **Lücken-Modus** | Fehlenden Faktor ergänzen, zum Beispiel `4 × ? = 28` | Nach 20 Aufgaben | Ja |
-| **Geteilt-Modus** | Passende Divisionsaufgaben lösen, zum Beispiel `28 ÷ 4` | Nach 20 Aufgaben | Ja |
+| **Geteilt-Start** | Einstellige Ergebnisse schriftlich und geführt teilen | Nach 20 Aufgaben | Ja |
+| **Schriftlich geteilt** | Geteiltaufgaben mit zweistelligem Ergebnis Ziffer für Ziffer lösen | Nach 15 Aufgaben | Ja |
+| **Geteilt-Profi** | Große Geteiltaufgaben mit dreistelligem Ergebnis schriftlich lösen | Nach 12 Aufgaben | Ja |
 | **Stimmt's?** | Entscheiden, ob eine gezeigte Rechnung richtig oder falsch ist | Nach 20 Aufgaben | Ja |
 | **Überleben** | Multiplikationsaufgaben mit drei Leben | Nach dem dritten Fehler | Ja |
 | **Zeit-Rennen** | Start mit 20 Sekunden; jede richtige Antwort gibt 3 Sekunden dazu | Wenn die Zeit abläuft | Ja |
@@ -120,6 +123,10 @@ Auf dem Startbildschirm startet `Enter` eine spielbereite Runde. Im Abenteuer we
 | **Abenteuer** | Die Reihen von 2 bis 10 nacheinander meistern; jedes Level enthält 12 Aufgaben | Nach 12 Aufgaben | Nein |
 
 Im Zeit-Rennen kann die verbleibende Zeit durch Bonussekunden höchstens auf 45 Sekunden steigen.
+
+### Schriftliche Division
+
+Die drei Geteilt-Modi verwenden die aus dem Schulheft bekannte Schreibweise. Das Kind trägt alle Zahlen selbst ein: zuerst die Ergebnisziffer, dann das Produkt unter der aktuellen Teilzahl und anschließend den Rest mit der gegebenenfalls heruntergeholten Ziffer. Der optionale Hilfetext beginnt mit „Wie oft geht die … in die …?“ und führt auch durch das Multiplizieren, Abziehen und Herunterholen. Die Aufgaben gehen ohne Rest auf und richten sich nach den ausgewählten Reihen.
 
 ### Intelligente Aufgabenauswahl
 
@@ -313,7 +320,7 @@ Farben, Schatten und Radien sind als CSS-Variablen am Anfang von `style.css` zus
 Der Service Worker verwendet eine Cache-Version in `sw.js`:
 
 ```javascript
-const CACHE = 'einmaleins-v1';
+const CACHE = 'einmaleins-v7';
 ```
 
 Erhöhe diese Versionskennung, beispielsweise auf `einmaleins-v2`, wenn veröffentlichte App-Dateien geändert wurden. Beim Aktivieren des neuen Service Workers werden ältere Caches entfernt. Ergänze außerdem jede neue Datei, die offline verfügbar sein soll, im Array `ASSETS`.
@@ -324,7 +331,8 @@ Während der Entwicklung kann ein bereits aktiver Service Worker ältere Dateien
 
 Das Projekt enthält derzeit keine automatisierte Test- oder Lint-Konfiguration. Prüfe Änderungen daher mindestens manuell in einem Desktop- und einem Mobilbrowser. Besonders wichtig sind:
 
-- Start und Abschluss aller neun Modi
+- Start und Abschluss aller zwölf Modi
+- alle drei Geteilt-Stufen mit richtigen und falschen Ergebnisziffern
 - richtige und falsche Antworten sowie Serienbonus
 - Zeitablauf, Leben, Duell-Übergabe und Abenteuer-Freischaltung
 - getrennte Fortschritte für mehrere Spieler
